@@ -1,5 +1,7 @@
+import numpy as np
+
 def criar_mapa(linhas, colunas):
-    return [['—'] * colunas for _ in range(linhas)]
+    return np.full((linhas, colunas), '-')
 
 def imprimir_mapa(mapa):
     for linha in mapa:
