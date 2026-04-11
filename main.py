@@ -3,7 +3,7 @@ import numpy as np
 def criar_mapa(linhas, colunas):
     linhas, colunas = min(linhas, 15), min(colunas, 15)
     total = linhas * colunas
-    num_bombas = int(total * 0.3)
+    num_bombas = int(total * 0.25)
 
     mapa = np.full((linhas, colunas), '-')
 
@@ -13,6 +13,22 @@ def criar_mapa(linhas, colunas):
         coluna = pos % colunas
         mapa[linha][coluna] = '*'
 
+    return calcular_numeros(mapa)
+
+def calcular_numeros(mapa):
+    linhas, colunas = mapa.shape
+    for i in range(linhas):
+        for j in range(colunas):
+            if mapa[i][j] == '*':
+                continue
+            bombas_adjacentes = 0
+            for di in [-1, 0, 1]:
+                for dj in [-1, 0, 1]:
+                    ni, nj = i + di, j + dj
+                    if 0 <= ni < linhas and 0 <= nj < colunas and mapa[ni][nj] == '*':
+                        bombas_adjacentes += 1
+            if bombas_adjacentes > 0:
+                mapa[i][j] = str(bombas_adjacentes)
     return mapa
 
 def imprimir_mapa(mapa):
