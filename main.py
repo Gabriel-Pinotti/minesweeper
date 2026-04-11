@@ -1,8 +1,9 @@
 import numpy as np
 
 def criar_mapa(linhas, colunas):
+    linhas, colunas = min(linhas, 15), min(colunas, 15)
     total = linhas * colunas
-    num_bombas = int(total * 0.25)
+    num_bombas = int(total * 0.3)
 
     mapa = np.full((linhas, colunas), '-')
 
@@ -20,9 +21,14 @@ def imprimir_mapa(mapa):
 
 def main():
     print("=== Campo Minado ===")
-    linhas = int(input("Número de linhas: "))
-    colunas = int(input("Número de colunas: "))
-
+    while True:
+        try:
+            linhas = int(input("Número de linhas: "))
+            colunas = int(input("Número de colunas: "))
+            break
+        except:
+            print("Digite apenas números!\n\n")
+    
     mapa = criar_mapa(linhas, colunas)
     imprimir_mapa(mapa)
 
