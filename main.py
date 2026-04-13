@@ -1,20 +1,5 @@
 import numpy as np
 
-def criar_mapa(linhas, colunas):
-    linhas, colunas = min(linhas, 15), min(colunas, 15)
-    total = linhas * colunas
-    num_bombas = int(total * 0.25)
-
-    mapa = np.full((linhas, colunas), '-')
-
-    posicoes = np.random.choice(total, num_bombas, replace=False)
-    for pos in posicoes:
-        linha = pos // colunas
-        coluna = pos % colunas
-        mapa[linha][coluna] = '*'
-
-    return calcular_numeros(mapa)
-
 def calcular_numeros(mapa):
     linhas, colunas = mapa.shape
     for i in range(linhas):
@@ -31,6 +16,17 @@ def calcular_numeros(mapa):
                 mapa[i][j] = str(bombas_adjacentes)
     return mapa
 
+def carregar_mapa(caminho='mapa.txt'):
+    with open(caminho, 'r') as f:
+        linhas, colunas = map(int, f.readline().split())
+        mapa = np.full((linhas, colunas), '-')
+        for linha in f:
+            i, j = map(int, linha.split())
+            numpy_linha = linhas - j
+            numpy_coluna = i - 1
+            mapa[numpy_linha][numpy_coluna] = '*'
+    return calcular_numeros(mapa)
+
 def criar_mapa_visivel(linhas, colunas):
     return np.full((linhas, colunas), '#')
 
@@ -39,12 +35,15 @@ def imprimir_mapa(mapa):
         print(' '.join(linha))
 
 def parsear_coordenada(entrada, linhas, colunas):
-    entrada = entrada.strip().lower()
-    coluna = ord(entrada[0]) - ord('a')
-    linha = linhas - int(entrada[1:])
-    if 0 <= linha < linhas and 0 <= coluna < colunas:
-        return linha, coluna
-    return None
+    try:
+        entrada = entrada.strip().lower()
+        coluna = ord(entrada[0]) - ord('a')
+        linha = linhas - int(entrada[1:])
+        if 0 <= linha < linhas and 0 <= coluna < colunas:
+            return linha, coluna
+        return None
+    except:
+        return None
 
 def revelar(mapa_real, mapa_visivel, linha, coluna):
     celula = mapa_real[linha][coluna]
@@ -68,44 +67,25 @@ def revelar(mapa_real, mapa_visivel, linha, coluna):
 def checar_vitoria(mapa_real, mapa_visivel):
     return np.sum(mapa_visivel == '#') == np.sum(mapa_real == '*')
 
-def salvar_mapa(mapa, caminho='mapa.txt'):
-    linhas, colunas = mapa.shape
-    with open(caminho, 'w') as f:
-        f.write(f"{linhas} {colunas}\n")
-        for i in range(linhas):
-            for j in range(colunas):
-                if mapa[i][j] == '*':
-                    f.write(f"{i} {j}\n")
-
-def carregar_mapa(caminho='mapa.txt'):
-    with open(caminho, 'r') as f:
-        linhas, colunas = map(int, f.readline().split())
-        mapa = np.full((linhas, colunas), '-')
-        for linha in f:
-            i, j = map(int, linha.split())
-            mapa[i][j] = '*'
-    return calcular_numeros(mapa)
-
 def main():
     print("=== Campo Minado ===")
-    while True:
-        try:
-            linhas = int(input("Número de linhas: "))
-            colunas = int(input("Número de colunas: "))
-            break
-        except:
-            print("Digite apenas números!\n\n")
-    
-    mapa_temp = criar_mapa(linhas, colunas)
-    salvar_mapa(mapa_temp)
-    mapa_real = carregar_mapa()
+    try:
+        mapa_real = carregar_mapa()
+    except FileNotFoundError:
+        print("Arquivo mapa.txt não encontrado!")
+        return
 
     mapa_visivel = criar_mapa_visivel(*mapa_real.shape)
     print("\nLetras: colunas\nNúmeros: linhas\n")
 
     while True:
         imprimir_mapa(mapa_visivel)
-        entrada = input("\nDigite uma coordenada: ")
+        
+        try:
+            entrada = input("\nDigite uma coordenada: ")
+        except:
+            print("Entrada inválida!\n")
+            continue
 
         coordenada = parsear_coordenada(entrada, *mapa_real.shape)
         if coordenada is None:
