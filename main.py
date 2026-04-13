@@ -68,6 +68,24 @@ def revelar(mapa_real, mapa_visivel, linha, coluna):
 def checar_vitoria(mapa_real, mapa_visivel):
     return np.sum(mapa_visivel == '#') == np.sum(mapa_real == '*')
 
+def salvar_mapa(mapa, caminho='mapa.txt'):
+    linhas, colunas = mapa.shape
+    with open(caminho, 'w') as f:
+        f.write(f"{linhas} {colunas}\n")
+        for i in range(linhas):
+            for j in range(colunas):
+                if mapa[i][j] == '*':
+                    f.write(f"{i} {j}\n")
+
+def carregar_mapa(caminho='mapa.txt'):
+    with open(caminho, 'r') as f:
+        linhas, colunas = map(int, f.readline().split())
+        mapa = np.full((linhas, colunas), '-')
+        for linha in f:
+            i, j = map(int, linha.split())
+            mapa[i][j] = '*'
+    return calcular_numeros(mapa)
+
 def main():
     print("=== Campo Minado ===")
     while True:
@@ -78,14 +96,18 @@ def main():
         except:
             print("Digite apenas números!\n\n")
     
-    mapa_real = criar_mapa(linhas, colunas)
-    mapa_visivel = criar_mapa_visivel(linhas, colunas)
+    mapa_temp = criar_mapa(linhas, colunas)
+    salvar_mapa(mapa_temp)
+    mapa_real = carregar_mapa()
+
+    mapa_visivel = criar_mapa_visivel(*mapa_real.shape)
     print("\nLetras: colunas\nNúmeros: linhas\n")
+
     while True:
         imprimir_mapa(mapa_visivel)
         entrada = input("\nDigite uma coordenada: ")
 
-        coordenada = parsear_coordenada(entrada, linhas, colunas)
+        coordenada = parsear_coordenada(entrada, *mapa_real.shape)
         if coordenada is None:
             print("Coordenada inválida!")
             continue
